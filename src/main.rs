@@ -2,7 +2,7 @@ use drag_and_crop::{ Point, ImageSize, ImageCropOptions, crop_image };
 
 fn main() {
   let options = ImageCropOptions {
-    file_path: "./imgs/bird.jpg".to_string(),
+    file_path: ".\\imgs\\bird.jpg".to_string(),
     result_file_path: None,
     top_left_point: Point {
       x: 100,
@@ -15,5 +15,5 @@ fn main() {
   };
 
   println!("Hello, world!");
-  println!("{:?}", crop_image(options));
+  println!("Cropped image path: {:?}", crop_image(options).unwrap());
 }

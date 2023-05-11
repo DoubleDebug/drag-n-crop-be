@@ -1,4 +1,10 @@
-use image::{ GenericImageView, imageops };
+use std::path::Path;
+
+use image::{ imageops };
+use utils::file::file::{ append_to_file_name };
+pub mod utils {
+  pub mod file;
+}
 
 #[derive(Debug)]
 pub struct Point {
@@ -32,6 +38,7 @@ pub fn crop_image(options: ImageCropOptions) -> Result<String, String> {
     options.size.width,
     options.size.height
   );
-
-  Ok(format!("{:?}", cropped_img.dimensions()))
+  let cropped_img_path = append_to_file_name(&Path::new(&options.file_path), "-1");
+  cropped_img.to_image().save(&cropped_img_path).unwrap();
+  Ok(cropped_img_path.to_str().unwrap().to_string())
 }
