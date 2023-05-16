@@ -1,19 +1,19 @@
-use drag_and_crop::{ Point, ImageSize, ImageCropOptions, crop_image };
+use drag_and_crop::{ crop_image, ImageCropOptions, ImageSize, Point };
 
 fn main() {
   let options = ImageCropOptions {
     file_path: ".\\imgs\\bird.jpg".to_string(),
     result_file_path: None,
-    top_left_point: Point {
-      x: 100,
-      y: 0,
-    },
+    top_left_point: Point { x: 10, y: 0 },
     size: ImageSize {
-      width: 400,
-      height: 400,
+      width: 710,
+      height: 600,
     },
   };
 
   println!("Hello, world!");
-  println!("Cropped image path: {:?}", crop_image(options).unwrap());
+  match crop_image(options) {
+    Ok(result) => println!("Cropped image path: {}", result),
+    Err(message) => println!("Failed to crop image: {}", message),
+  }
 }
