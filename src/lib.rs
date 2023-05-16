@@ -1,11 +1,11 @@
-use std::path::{ Path, PathBuf };
+use std::path::{ PathBuf };
 use image::{ imageops };
 
 pub mod utils {
   pub mod file;
   pub mod validate;
 }
-use utils::file::file::{ append_to_file_name };
+use utils::file::file::{ get_output_path };
 use utils::validate::validate::validate_options;
 
 #[derive(Debug)]
@@ -44,21 +44,11 @@ pub fn crop_image(options: ImageCropOptions) -> Result<String, String> {
     options.size.height
   );
 
-  let mut output_file_path;
+  let output_file_path;
   if let Some(output_path) = options.result_file_path {
     output_file_path = PathBuf::from(&output_path);
   } else {
-    let mut i = 1;
-    loop {
-      output_file_path = append_to_file_name(
-        &Path::new(&options.file_path),
-        format!("-{}", i.to_string().as_str()).as_str()
-      );
-      if !Path::new(&output_file_path).exists() {
-        break;
-      }
-      i += 1;
-    }
+    output_file_path = get_output_path(options.file_path);
   }
   cropped_img.to_image().save(&output_file_path).unwrap();
 

@@ -46,4 +46,26 @@ pub mod file {
 
     new_path
   }
+
+  /**
+   * Generates a new file name that doesn't already exist.
+   * It appends "-1" at the end of input file path.
+   * If a file already exists for that path,
+   * it keeps increasing the count until it finds a non-existing file path.
+   */
+  pub fn get_output_path(input_path: String) -> PathBuf {
+    let mut output_file_path;
+    let mut i = 1;
+    loop {
+      output_file_path = append_to_file_name(
+        &Path::new(&input_path),
+        format!("-{}", i.to_string().as_str()).as_str()
+      );
+      if !Path::new(&output_file_path).exists() {
+        break;
+      }
+      i += 1;
+    }
+    return output_file_path;
+  }
 }
