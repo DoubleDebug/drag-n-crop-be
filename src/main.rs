@@ -1,4 +1,4 @@
-use drag_and_crop::{ crop_image, ImageCropOptions, ImageSize, Point };
+use drag_and_crop::{ crop_image, crop_video, ImageCropOptions, ImageSize, Point };
 
 fn main() {
   let options = ImageCropOptions {
@@ -16,4 +16,7 @@ fn main() {
     Ok(result) => println!("Cropped image path: {}", result),
     Err(message) => println!("Failed to crop image: {}", message),
   }
+
+  println!("Testing video crop...");
+  // crop_video();
 }
