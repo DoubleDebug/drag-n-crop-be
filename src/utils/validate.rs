@@ -2,38 +2,47 @@ pub mod validate {
   use std::path::Path;
   use image::GenericImageView;
 
-  use crate::ImageCropOptions;
+  use crate::{CropOptions, utils::file::file::{is_image_file, is_video_file}};
 
-  pub fn validate_options(options: &ImageCropOptions) -> Result<bool, String> {
-    // 1) check if input file exists
-    if !Path::new(&options.file_path).exists() {
+  pub fn validate_options(options: &CropOptions) -> Result<bool, String> {
+    // 0) check if input file exists
+    if !Path::new(&options.input_file_path).exists() {
       return Err(String::from("The specified file does not exist."));
     }
 
+    // 1) check if file is an image or video
+    let is_image = is_image_file(&options.input_file_path);
+    let is_video = is_video_file(&options.input_file_path);
+    if !is_image && !is_video {
+      return Err(String::from("The specified file is not an image nor a video."));
+    }
+
     // 2) check if output file exists
-    if let Some(output_path) = &options.result_file_path {
+    if let Some(output_path) = &options.output_file_path {
       if Path::new(&output_path).exists() {
         return Err(String::from("The specified output file already exists."));
       }
     }
 
-    // 3) check if top left point is within image dimensions
-    let img = image::open(Path::new(&options.file_path));
-    if img.is_err() {
-      let err_message = img.err().unwrap().to_string();
-      return Err(err_message);
-    }
-    let (img_x, img_y) = img.unwrap().dimensions();
-    if options.top_left_point.x >= img_x || options.top_left_point.y >= img_y {
-      return Err(String::from("The top left point is out of bounds."));
-    }
+    if is_image {
+      // 3) check if top left point is within image dimensions
+      let img = image::open(Path::new(&options.input_file_path));
+      if img.is_err() {
+        let err_message = img.err().unwrap().to_string();
+        return Err(err_message);
+      }
+      let (width, height) = img.unwrap().dimensions();
+      if options.top_left_point.x >= width || options.top_left_point.y >= height {
+        return Err(String::from("The top left point is out of bounds."));
+      }
 
-    // 4) check if output size if larger than input image size
-    if
-      options.size.width > img_x - options.top_left_point.x ||
-      options.size.height > img_y - options.top_left_point.y
-    {
-      return Err(String::from("The output size is larger than the input image size."));
+      // 4) check if output size if larger than input size
+      if
+        options.size.width > width - options.top_left_point.x ||
+        options.size.height > height - options.top_left_point.y
+      {
+        return Err(String::from("The output size is larger than the input image size."));
+      }
     }
 
     Ok(true)
