@@ -1,6 +1,7 @@
 use image::imageops;
 use std::path::PathBuf;
 use std::process::Command;
+use serde::{Serialize, Deserialize};
 
 pub mod utils {
     pub mod file;
@@ -9,19 +10,19 @@ pub mod utils {
 use utils::file::file::get_output_path;
 use utils::validate::validate::validate_options;
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Point {
     pub x: u32,
     pub y: u32,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ImageSize {
     pub width: u32,
     pub height: u32,
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CropOptions {
     pub input_file_path: String,
     pub output_file_path: Option<String>,
