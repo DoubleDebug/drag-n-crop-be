@@ -2,25 +2,25 @@ pub mod validate {
   use std::path::Path;
   use image::GenericImageView;
 
-  use crate::{CropOptions, utils::file::file::{is_image_file, is_video_file}};
+  use crate::{ CropOptions, utils::file::file::{ is_image_file, is_video_file } };
 
   pub fn validate_options(options: &CropOptions) -> Result<bool, String> {
     // 0) check if input file exists
     if !Path::new(&options.input_file_path).exists() {
-      return Err(String::from("The specified file does not exist."));
+      return Err(String::from("The input file does not exist."));
     }
 
     // 1) check if file is an image or video
     let is_image = is_image_file(&options.input_file_path);
     let is_video = is_video_file(&options.input_file_path);
     if !is_image && !is_video {
-      return Err(String::from("The specified file is not an image nor a video."));
+      return Err(String::from("The input file is not an image nor a video."));
     }
 
     // 2) check if output file exists
     if let Some(output_path) = &options.output_file_path {
       if Path::new(&output_path).exists() {
-        return Err(String::from("The specified output file already exists."));
+        return Err(String::from("The output file already exists."));
       }
     }
 

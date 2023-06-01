@@ -77,7 +77,7 @@ pub fn crop_image(options: &CropOptions) -> Result<String, String> {
  * Crops video with the given options and returns the file path of the newly created cropped video file.
  */
 pub fn crop_video(options: &CropOptions) -> Result<String, String> {
-  // validate_options(&options)?;
+  validate_options(&options)?;
 
   let crop_dimensions = format!(
     "crop={}:{}:{}:{}",
@@ -106,7 +106,7 @@ pub fn crop_video(options: &CropOptions) -> Result<String, String> {
   let status = match output {
     Ok(ref output) => output.status,
     Err(error) => {
-      return Err(format!("There was an error while running the ffmpeg command: {}", error));
+      return Err(format!("There was an error while processing the video: {}", error));
     }
   };
 
