@@ -23,11 +23,22 @@ pub struct ImageSize {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct CropOptions {
-  pub input_file_path: String,
-  pub output_file_path: Option<String>,
+pub struct CropDimensions {
   pub top_left_point: Point,
   pub size: ImageSize,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CropParameters {
+  pub input_file_path: String,
+  pub output_file_path: Option<String>,
+  pub dimensions: CropDimensions,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CropRequest {
+  pub file_url: String,
+  pub dimensions: CropDimensions,
 }
 
 #[derive(Serialize)]
@@ -37,10 +48,15 @@ pub struct ApiResponse<T> {
   pub data: Option<T>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UploadResponse {
+  pub name: String,
+}
+
 /**
  * Crops image with the given options and returns the file path of the newly created cropped image.
  */
-pub fn crop_image(options: &CropOptions) -> Result<String, String> {
+pub fn crop_image(options: &CropParameters) -> Result<String, String> {
   validate_options(&options)?;
 
   let mut img = match image::open(&options.input_file_path) {
@@ -51,10 +67,10 @@ pub fn crop_image(options: &CropOptions) -> Result<String, String> {
   };
   let cropped_img = imageops::crop(
     &mut img,
-    options.top_left_point.x,
-    options.top_left_point.y,
-    options.size.width,
-    options.size.height
+    options.dimensions.top_left_point.x,
+    options.dimensions.top_left_point.y,
+    options.dimensions.size.width,
+    options.dimensions.size.height
   );
 
   let output_file_path;
@@ -76,15 +92,15 @@ pub fn crop_image(options: &CropOptions) -> Result<String, String> {
 /**
  * Crops video with the given options and returns the file path of the newly created cropped video file.
  */
-pub fn crop_video(options: &CropOptions) -> Result<String, String> {
+pub fn crop_video(options: &CropParameters) -> Result<String, String> {
   validate_options(&options)?;
 
   let crop_dimensions = format!(
     "crop={}:{}:{}:{}",
-    &options.size.width,
-    &options.size.height,
-    &options.top_left_point.x,
-    &options.top_left_point.y
+    &options.dimensions.size.width,
+    &options.dimensions.size.height,
+    &options.dimensions.top_left_point.x,
+    &options.dimensions.top_left_point.y
   ); // width:height:x:y
   let output_file_path;
   if let Some(output_path) = &options.output_file_path {

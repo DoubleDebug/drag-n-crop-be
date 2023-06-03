@@ -1,3 +1,9 @@
+# development
 /target
 .vscode
+
+# external dependencies
 ffmpeg.exe
+
+# credentials
+service-account.json

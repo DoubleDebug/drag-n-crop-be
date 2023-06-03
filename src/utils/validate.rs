@@ -2,9 +2,9 @@ pub mod validate {
   use std::path::Path;
   use image::GenericImageView;
 
-  use crate::{ CropOptions, utils::file::file::{ is_image_file, is_video_file } };
+  use crate::{ CropParameters, utils::file::file::{ is_image_file, is_video_file } };
 
-  pub fn validate_options(options: &CropOptions) -> Result<bool, String> {
+  pub fn validate_options(options: &CropParameters) -> Result<bool, String> {
     // 0) check if input file exists
     if !Path::new(&options.input_file_path).exists() {
       return Err(String::from("The input file does not exist."));
@@ -32,14 +32,17 @@ pub mod validate {
         return Err(err_message);
       }
       let (width, height) = img.unwrap().dimensions();
-      if options.top_left_point.x >= width || options.top_left_point.y >= height {
+      if
+        options.dimensions.top_left_point.x >= width ||
+        options.dimensions.top_left_point.y >= height
+      {
         return Err(String::from("The top left point is out of bounds."));
       }
 
       // 4) check if output size if larger than input size
       if
-        options.size.width > width - options.top_left_point.x ||
-        options.size.height > height - options.top_left_point.y
+        options.dimensions.size.width > width - options.dimensions.top_left_point.x ||
+        options.dimensions.size.height > height - options.dimensions.top_left_point.y
       {
         return Err(String::from("The output size is larger than the input image size."));
       }
