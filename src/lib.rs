@@ -37,7 +37,7 @@ pub struct CropParameters {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct CropRequest {
-  pub file_url: String,
+  pub storage_file_path: String,
   pub dimensions: CropDimensions,
 }
 

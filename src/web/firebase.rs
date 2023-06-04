@@ -1,7 +1,11 @@
-use std::{ path::Path, fs::File, io::Write, error::Error };
-use drag_and_crop::{ utils::file::file::get_file_name, UploadResponse };
+use std::{ path::Path, fs, error::Error };
+use drag_and_crop::{
+  utils::file::file::{ get_file_name, format_file_name_for_storage },
+  UploadResponse,
+};
 use yup_oauth2::{ ServiceAccountAuthenticator, read_service_account_key };
 use rocket::serde::json::serde_json;
+use urlencoding::encode;
 
 const STORAGE_SCOPE: &str = "https://www.googleapis.com/auth/devstorage.read_write";
 const DOWNLOAD_URL: &str =
@@ -12,7 +16,7 @@ const UPLOAD_URL: &str =
 /**
  * Returns Oath2 access token with Firebase storage permissions
  */
-pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
+pub async fn get_access_token() -> Result<String, Box<dyn Error + Send + Sync>> {
   let path = Path::new("service-account.json");
   let sa_key = read_service_account_key(&path).await?;
   let auth = ServiceAccountAuthenticator::builder(sa_key).build().await?;
@@ -29,44 +33,59 @@ pub async fn get_access_token() -> Result<String, Box<dyn Error>> {
 /**
  * Uploads image to Firebase storage and returns resource path within the storage bucket
  */
-pub async fn upload_image(access_token: &str, file_path: &str) -> Result<String, Box<dyn Error>> {
+pub async fn upload_image(
+  access_token: &str,
+  file_path: &str
+) -> Result<String, Box<dyn Error + Send + Sync>> {
   upload_file(access_token, file_path, true).await
 }
 
 /**
  * Uploads video to Firebase storage and returns resource path within the storage bucket
  */
-pub async fn upload_video(access_token: &str, file_path: &str) -> Result<String, Box<dyn Error>> {
+pub async fn upload_video(
+  access_token: &str,
+  file_path: &str
+) -> Result<String, Box<dyn Error + Send + Sync>> {
   upload_file(access_token, file_path, false).await
 }
 
-pub async fn download_file(access_token: &str, file_name: &str) -> Result<String, Box<dyn Error>> {
+pub async fn download_file(
+  access_token: &str,
+  file_name: &str
+) -> Result<String, Box<dyn Error + Send + Sync>> {
   let client = reqwest::Client::builder().build()?;
 
   // headers
   let mut headers = reqwest::header::HeaderMap::new();
   headers.insert("Authorization", format!("Bearer {}", access_token).parse()?);
 
+  // query parameters
+  let query: [(&str, &str); 1] = [("alt", "media")];
+
   // request
+  let encoded_file_name = encode(&file_name);
   let request = client
-    .request(reqwest::Method::GET, format!("{}/{}", DOWNLOAD_URL, file_name))
+    .request(reqwest::Method::GET, format!("{}/{}", DOWNLOAD_URL, encoded_file_name))
+    .query(&query)
     .headers(headers);
   let response = request.send().await?;
 
   // write response to file
-  let file_name = format!(".\\tmp\\{}", get_file_name(&file_name));
-  let mut file = File::create(&file_name)?;
+  let only_file_name = Path::new(&file_name).file_name().unwrap().to_str().unwrap();
+  let output_file_name = format!("./tmp/{}", only_file_name);
   let bytes = response.bytes().await?;
-  tokio::task::spawn_blocking(move || file.write_all(&bytes)).await;
 
-  Ok(file_name)
+  let _ = fs::write(&output_file_name, &bytes);
+
+  Ok(output_file_name)
 }
 
 async fn upload_file(
   access_token: &str,
   file_path: &str,
   is_image: bool
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String, Box<dyn Error + Send + Sync>> {
   let client = reqwest::Client::builder().build()?;
 
   // headers
@@ -79,7 +98,7 @@ async fn upload_file(
   let bytes = std::fs::read(file_path)?;
 
   // query parameters
-  let file_name = get_file_name(&file_path);
+  let file_name = format_file_name_for_storage(&file_path);
   let folder_name = if is_image { "images" } else { "videos" };
   let storage_file_name = format!("cropped/{}/{}", &folder_name, &file_name);
   let query: [(&str, &str); 2] = [

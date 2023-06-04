@@ -31,6 +31,22 @@ pub mod file {
   }
 
   /**
+   * Formats file name for Firebase storage.
+   * Gets file name from relative path and removes the "cropped-" prefix.
+   */
+  pub fn format_file_name_for_storage(file_name: &str) -> String {
+    let prefix_length = "cropped-".len();
+    Path::new(file_name)
+      .file_name()
+      .unwrap()
+      .to_string_lossy()
+      .to_string()
+      .chars()
+      .skip(prefix_length)
+      .collect()
+  }
+
+  /**
      Renames file at the specified path and appends string to the end of the file name.
      Example:
 
