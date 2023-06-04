@@ -109,7 +109,7 @@ pub fn crop_video(options: &CropParameters) -> Result<String, String> {
     output_file_path = get_output_path(&options.input_file_path);
   }
 
-  let output = Command::new("./ffmpeg.exe")
+  let output = Command::new("ffmpeg.exe")
     .arg("-i")
     .arg(&options.input_file_path)
     .arg("-filter:v")

@@ -1,0 +1,272 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Drag-n-crop Rest API",
+    "version": "1.0.0",
+    "description": "\n### Summary\nImage and video cropping tool and web server written in Rust.\n- [Website](https://www.example.com)\n- [Github repository](https://github.com/DoubleDebug/drag-and-crop-be)\n- [Blog article](https://doubledebug.vercel.app)\n\n<br />\n\n### Limitations\n| File type | Size  | Format                              |\n| --------- | ----- | ----------------------------------- |\n| image     | 100MB | jpg, jpeg, png, gif, bmp, webp, svg |\n| video     | 1GB   | mp4, mkv, flv, avi, mov, wmv, webm  |"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "crop",
+      "description": "Cropping utility"
+    }
+  ],
+  "paths": {
+    "/api/crop-image": {
+      "post": {
+        "tags": [
+          "crop"
+        ],
+        "summary": "Crops an image, uploads it to cloud storage and returns storage path",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CropRequest"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "storage_file_path": "raw/images/b885dc62-586f-4f8e-bc77-7dfbfb38f612.jpg",
+                    "dimensions": {
+                      "top_left_point": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 1024,
+                        "height": 720
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Image cropped successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": null,
+                  "data": "cropped/images/b885dc62-586f-4f8e-bc77-7dfbfb38f612.jpg"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "There was an error with the image url.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "There was a type mismatch with the request data.",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crop-video": {
+      "post": {
+        "tags": [
+          "crop"
+        ],
+        "summary": "Crops a video, uploads it to cloud storage and returns storage path",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CropRequest"
+              },
+              "examples": {
+                "example1": {
+                  "value": {
+                    "storage_file_path": "raw/videos/b885dc62-586f-4f8e-bc77-7dfbfb38f612.mp4",
+                    "dimensions": {
+                      "top_left_point": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 360,
+                        "height": 720
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Video cropped successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": true,
+                  "message": null,
+                  "data": "cropped/videos/b885dc62-586f-4f8e-bc77-7dfbfb38f612.mp4"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "There was an error with the image url.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                },
+                "example": {
+                  "success": false,
+                  "message": "There was a type mismatch with the request data.",
+                  "data": null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Point": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "integer",
+            "format": "u32"
+          },
+          "y": {
+            "type": "integer",
+            "format": "u32"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      },
+      "Size": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "format": "u32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "u32"
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ]
+      },
+      "Dimensions": {
+        "type": "object",
+        "properties": {
+          "top_left_point": {
+            "$ref": "#/components/schemas/Point"
+          },
+          "size": {
+            "$ref": "#/components/schemas/Size"
+          }
+        },
+        "required": [
+          "top_left_point",
+          "size"
+        ]
+      },
+      "CropRequest": {
+        "type": "object",
+        "properties": {
+          "storage_file_path": {
+            "type": "string"
+          },
+          "dimensions": {
+            "$ref": "#/components/schemas/Dimensions"
+          }
+        },
+        "required": [
+          "storage_file_path",
+          "dimensions"
+        ]
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "string",
+            "nullable": true
+          },
+          "message": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "success"
+        ]
+      }
+    }
+  }
+}
