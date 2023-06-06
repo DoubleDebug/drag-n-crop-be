@@ -2,8 +2,7 @@
 #[macro_use]
 extern crate rocket;
 pub mod web {
-  pub mod crop_image;
-  pub mod crop_video;
+  pub mod endpoints;
   pub mod catchers;
   pub mod firebase;
 }
@@ -11,8 +10,7 @@ pub mod utils {
   pub mod init;
 }
 use utils::init::init;
-use crate::web::crop_image::routes::post_crop_image;
-use crate::web::crop_video::routes::post_crop_video;
+use crate::web::endpoints::routes::{ post_crop_image, post_crop_video };
 use crate::web::catchers::{ default_catcher, unprocessable_entity };
 
 #[launch]

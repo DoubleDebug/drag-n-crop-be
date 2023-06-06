@@ -1,8 +1,5 @@
 use std::{ path::Path, fs, error::Error };
-use drag_and_crop::{
-  utils::file::file::{ get_file_name, format_file_name_for_storage },
-  UploadResponse,
-};
+use drag_and_crop::{ utils::file::file::{ format_file_name_for_storage }, UploadResponse };
 use yup_oauth2::{ ServiceAccountAuthenticator, read_service_account_key };
 use rocket::serde::json::serde_json;
 use urlencoding::encode;
@@ -31,28 +28,11 @@ pub async fn get_access_token() -> Result<String, Box<dyn Error + Send + Sync>> 
 }
 
 /**
- * Uploads image to Firebase storage and returns resource path within the storage bucket
+ * Downloads file from Firebase storage, saves it to the "tmp" folder and returns the local file path.
  */
-pub async fn upload_image(
-  access_token: &str,
-  file_path: &str
-) -> Result<String, Box<dyn Error + Send + Sync>> {
-  upload_file(access_token, file_path, true).await
-}
-
-/**
- * Uploads video to Firebase storage and returns resource path within the storage bucket
- */
-pub async fn upload_video(
-  access_token: &str,
-  file_path: &str
-) -> Result<String, Box<dyn Error + Send + Sync>> {
-  upload_file(access_token, file_path, false).await
-}
-
 pub async fn download_file(
   access_token: &str,
-  file_name: &str
+  storage_file_path: &str
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
   let client = reqwest::Client::builder().build()?;
 
@@ -64,7 +44,7 @@ pub async fn download_file(
   let query: [(&str, &str); 1] = [("alt", "media")];
 
   // request
-  let encoded_file_name = encode(&file_name);
+  let encoded_file_name = encode(&storage_file_path);
   let request = client
     .request(reqwest::Method::GET, format!("{}/{}", DOWNLOAD_URL, encoded_file_name))
     .query(&query)
@@ -72,7 +52,7 @@ pub async fn download_file(
   let response = request.send().await?;
 
   // write response to file
-  let only_file_name = Path::new(&file_name).file_name().unwrap().to_str().unwrap();
+  let only_file_name = Path::new(&storage_file_path).file_name().unwrap().to_str().unwrap();
   let output_file_name = format!("./tmp/{}", only_file_name);
   let bytes = response.bytes().await?;
 
@@ -81,7 +61,10 @@ pub async fn download_file(
   Ok(output_file_name)
 }
 
-async fn upload_file(
+/**
+ * Uploads image/video to Firebase storage and returns resource path within the storage bucket
+ */
+pub async fn upload_file(
   access_token: &str,
   file_path: &str,
   is_image: bool
