@@ -1,9 +1,43 @@
-pub mod validate {
+pub mod validation {
   use std::path::Path;
   use image::GenericImageView;
 
   use crate::{ CropParameters, utils::file::file::{ is_image_file, is_video_file } };
 
+  /// Validates cropping parameters.
+  /// If the validation is successful, it returns `true`, or an error message otherwise.
+  ///
+  /// ## Usage:
+  /// ```
+  /// use drag_and_crop::utils::validation::validation::validate_options;
+  /// use drag_and_crop::{CropParameters, CropDimensions, ImageSize, Point};
+  ///
+  /// let mut params = CropParameters {
+  ///   input_file_path: String::from("./media/bird.jpg"),
+  ///   output_file_path: Some(String::from("./media/bird-cropped.jpg")),
+  ///   dimensions: CropDimensions {
+  ///     size: ImageSize { width: 100, height: 100 },
+  ///     top_left_point: Point { x: 50, y: 50 },
+  ///   },
+  /// };
+  ///
+  /// let mut result = validate_options(&params);
+  /// assert_eq!(result.unwrap(), true);
+  ///
+  /// params.input_file_path = String::from("./non-existing-file.jpg");
+  /// result = validate_options(&params);
+  /// assert_eq!(result, Err(String::from("The input file does not exist.")));
+  ///
+  /// params.input_file_path = String::from("./media/bird.jpg");
+  /// params.dimensions.top_left_point.x = 2000;
+  /// result = validate_options(&params);
+  /// assert_eq!(result, Err(String::from("The top left point is out of bounds.")));
+  ///
+  /// params.dimensions.top_left_point.x = 50;
+  /// params.dimensions.size.width = 5000;
+  /// result = validate_options(&params);
+  /// assert_eq!(result, Err(String::from("The output size is larger than the input image size.")));
+  /// ```
   pub fn validate_options(options: &CropParameters) -> Result<bool, String> {
     // 0) check if input file exists
     if !Path::new(&options.input_file_path).exists() {

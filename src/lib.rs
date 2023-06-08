@@ -5,10 +5,10 @@ use serde::{ Serialize, Deserialize };
 
 pub mod utils {
   pub mod file;
-  pub mod validate;
+  pub mod validation;
 }
 use utils::file::file::get_output_path;
-use utils::validate::validate::validate_options;
+use utils::validation::validation::validate_options;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Point {
