@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000"
+      "url": "http://127.0.0.1:8000"
     }
   ],
   "tags": [
@@ -19,9 +19,7 @@
   "paths": {
     "/api/crop-image": {
       "post": {
-        "tags": [
-          "crop"
-        ],
+        "tags": ["crop"],
         "summary": "Crops an image, uploads it to cloud storage and returns storage path",
         "requestBody": {
           "content": {
@@ -101,9 +99,7 @@
     },
     "/api/crop-video": {
       "post": {
-        "tags": [
-          "crop"
-        ],
+        "tags": ["crop"],
         "summary": "Crops a video, uploads it to cloud storage and returns storage path",
         "requestBody": {
           "content": {
@@ -196,10 +192,7 @@
             "format": "u32"
           }
         },
-        "required": [
-          "x",
-          "y"
-        ]
+        "required": ["x", "y"]
       },
       "Size": {
         "type": "object",
@@ -213,10 +206,7 @@
             "format": "u32"
           }
         },
-        "required": [
-          "width",
-          "height"
-        ]
+        "required": ["width", "height"]
       },
       "Dimensions": {
         "type": "object",
@@ -228,10 +218,7 @@
             "$ref": "#/components/schemas/Size"
           }
         },
-        "required": [
-          "top_left_point",
-          "size"
-        ]
+        "required": ["top_left_point", "size"]
       },
       "CropRequest": {
         "type": "object",
@@ -243,10 +230,7 @@
             "$ref": "#/components/schemas/Dimensions"
           }
         },
-        "required": [
-          "storage_file_path",
-          "dimensions"
-        ]
+        "required": ["storage_file_path", "dimensions"]
       },
       "ApiResponse": {
         "type": "object",
@@ -263,9 +247,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "success"
-        ]
+        "required": ["success"]
       }
     }
   }
