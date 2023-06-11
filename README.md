@@ -2,9 +2,9 @@
 
 Image and video cropping tool and web server written in Rust
 
-## External dependencies
+## Peer dependencies
 
-This project has 1 external dependency - [ffmpeg](https://ffmpeg.org).
+This project has 1 peer dependency - [ffmpeg](https://ffmpeg.org).
 
 In order for the video cropping utility to work, your machine needs to have ffmpeg installed or ffmpeg.exe placed in the root of this project.
 
