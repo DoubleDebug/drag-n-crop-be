@@ -22,8 +22,9 @@ In order for the video cropping utility to work, your machine needs to have ffmp
 | video     | 1GB   | mp4, mkv, flv, avi, mov, wmv, webm  |
 
 ## How to run locally
-0. Install [rust](https://www.rust-lang.org/tools/install).
-1. Install [ffmpeg](https://ffmpeg.org) or copy ffmpeg.exe to the root of this project.
-2. Clone this repository.
-3. Run `cargo run` in the root directory.
-4. Navigate to http://127.0.0.1:8000 to see the Swagger documentation.
+*(Prerequisite)* Install [rust](https://www.rust-lang.org/tools/install).
+<br />
+*(Prerequisite)* Install [ffmpeg](https://ffmpeg.org) or copy ffmpeg.exe to the root of this project.
+1. Clone this repository.
+2. Run `cargo run` in the root directory.
+3. Navigate to http://127.0.0.1:8000 to see the Swagger documentation.
