@@ -24,7 +24,16 @@ In order for the video cropping utility to work, your machine needs to have ffmp
 ## How to run locally
 *(Prerequisite)* Install [rust](https://www.rust-lang.org/tools/install).
 <br />
-*(Prerequisite)* Install [ffmpeg](https://ffmpeg.org) or copy ffmpeg.exe to the root of this project.
+*(Prerequisite)* Install [ffmpeg](https://ffmpeg.org) or copy ffmpeg executable to the root of this project.
 1. Clone this repository.
 2. Run `cargo run` in the root directory.
 3. Navigate to http://127.0.0.1:8000 to see the Swagger documentation.
+
+## Change log
+- **version 1.1 ( ??? )**
+  - [ ] add support for uploading from URL
+  - [ ] add support for longer videos
+    - change `crop-video` endpoint to stream its progress instead of blocking the thread
+- **version 1.0 (Jul 18, 2023)**
+  - [x] crop image
+  - [x] crop video
