@@ -1,5 +1,5 @@
 use std::{ path::Path, fs, error::Error };
-use drag_and_crop::{ utils::file::file::{ format_file_name_for_storage }, UploadResponse };
+use drag_and_crop::{ utils::file::file::format_file_name_for_storage, UploadResponse };
 use yup_oauth2::{ ServiceAccountAuthenticator, read_service_account_key };
 use rocket::serde::json::serde_json;
 use urlencoding::encode;

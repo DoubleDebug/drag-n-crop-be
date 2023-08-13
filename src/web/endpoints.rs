@@ -3,6 +3,7 @@ use drag_and_crop::{ CropRequest, crop_video };
 use drag_and_crop::{ crop_image, ApiResponse, CropParameters };
 use rocket::serde::json::{ json, Json, Value };
 use crate::web::firebase::{ download_file, get_access_token, upload_file };
+use crate::web::url::url::download_from_url;
 
 pub mod routes {
   use rocket::{
@@ -47,16 +48,37 @@ async fn handle_crop_request(options: Json<CropRequest>, is_image: bool) -> Valu
   }
   let token = token_result.as_ref().unwrap().as_str();
 
-  // 2) download specified file from Firebase storage
-  let download_result = download_file(token, &options.storage_file_path).await;
-  if download_result.is_err() {
+  // 2) download file from URL or firebase storage
+  let mut file_name = String::new();
+  if let Some(storage_path) = &options.storage_file_path {
+    let download_result = download_file(token, &storage_path).await;
+    if download_result.is_err() {
+      return json!(ApiResponse::<String> {
+        success: false,
+        message: Some(format!("There was an error with the {} url.", media_type)),
+        data: None,
+      });
+    }
+    file_name = download_result.unwrap();
+  } else if let Some(url) = &options.url {
+    let download_result = download_from_url(url).await;
+    if download_result.is_none() {
+      return json!(ApiResponse::<String> {
+        success: false,
+        message: Some(format!("There was an error with the {} url.", media_type)),
+        data: None,
+      });
+    }
+    file_name = download_result.unwrap();
+  }
+
+  if file_name == "" {
     return json!(ApiResponse::<String> {
       success: false,
-      message: Some(format!("There was an error with the {} url.", media_type)),
+      message: Some(format!("Bad request - both storage file path and URL fields are empty.")),
       data: None,
     });
   }
-  let file_name = download_result.unwrap();
 
   // 3) prepare cropping parameteres
   let only_file_name = Path::new(&file_name).file_name().unwrap().to_str().unwrap();

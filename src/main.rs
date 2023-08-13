@@ -5,6 +5,7 @@ pub mod web {
   pub mod endpoints;
   pub mod catchers;
   pub mod firebase;
+  pub mod url;
 }
 pub mod utils {
   pub mod init;
