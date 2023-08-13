@@ -13,6 +13,8 @@ pub mod utils {
 use utils::init::init;
 use utils::cors::CORS;
 use rocket::fs::{ FileServer, Options };
+use std::net::Ipv4Addr;
+use rocket::Config;
 use crate::web::endpoints::routes::{
   post_crop_image,
   post_crop_video,
@@ -25,8 +27,14 @@ use crate::web::catchers::{ default_catcher, unprocessable_entity };
 fn rocket() -> _ {
   init();
 
+  let config = Config {
+    address: Ipv4Addr::new(0, 0, 0, 0).into(),
+    ..Default::default()
+  };
+
   rocket
     ::build()
+    .configure(config)
     .attach(CORS)
     .mount("/", FileServer::new("./static/swagger-ui", Options::Index).rank(1))
     .mount("/docs", FileServer::new("./docs", Options::Index).rank(2))

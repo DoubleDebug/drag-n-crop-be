@@ -5,7 +5,11 @@ use rocket::serde::json::{ json, Json, Value };
 use crate::web::firebase::{ download_file, get_access_token, upload_file };
 
 pub mod routes {
-  use rocket::{ serde::json::{ Json, Value }, response::status, http::Status };
+  use rocket::{
+    serde::json::{ Json, Value },
+    response::{ status, stream::{ Event, EventStream } },
+    http::Status,
+  };
   use drag_and_crop::CropRequest;
 
   #[post("/crop-image", format = "json", data = "<options>")]
@@ -13,8 +17,12 @@ pub mod routes {
     super::handle_crop_request(options, true).await
   }
   #[post("/crop-video", format = "json", data = "<options>")]
-  pub async fn post_crop_video(options: Json<CropRequest>) -> Value {
-    super::handle_crop_request(options, false).await
+  pub async fn post_crop_video(options: Json<CropRequest>) -> EventStream![] {
+    EventStream! {
+      yield Event::data("Processing...");
+      let result = super::handle_crop_request(options, false).await;
+      yield Event::data(result.to_string());
+    }
   }
   #[options("/crop-image")]
   pub fn options_crop_image() -> status::Custom<String> {
