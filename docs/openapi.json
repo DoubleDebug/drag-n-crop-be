@@ -42,6 +42,21 @@
                       }
                     }
                   }
+                },
+                "example2": {
+                  "value": {
+                    "url": "https://i.imgur.com/mXxCzXG.png",
+                    "dimensions": {
+                      "top_left_point": {
+                        "x": 200,
+                        "y": 200
+                      },
+                      "size": {
+                        "width": 800,
+                        "height": 600
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -111,6 +126,21 @@
                 "example1": {
                   "value": {
                     "storage_file_path": "raw/videos/b885dc62-586f-4f8e-bc77-7dfbfb38f612.mp4",
+                    "dimensions": {
+                      "top_left_point": {
+                        "x": 0,
+                        "y": 0
+                      },
+                      "size": {
+                        "width": 360,
+                        "height": 720
+                      }
+                    }
+                  }
+                },
+                "example2": {
+                  "value": {
+                    "url": "https://i.imgur.com/EnfgrsJ.mp4",
                     "dimensions": {
                       "top_left_point": {
                         "x": 0,
@@ -223,14 +253,19 @@
       "CropRequest": {
         "type": "object",
         "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
           "storage_file_path": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "dimensions": {
             "$ref": "#/components/schemas/Dimensions"
           }
         },
-        "required": ["storage_file_path", "dimensions"]
+        "required": ["storage_file_path", "url", "dimensions"]
       },
       "ApiResponse": {
         "type": "object",
