@@ -6,6 +6,7 @@ pub mod web {
   pub mod catchers;
   pub mod firebase;
   pub mod url;
+  pub mod handlers;
 }
 pub mod utils {
   pub mod init;
@@ -21,6 +22,7 @@ use crate::web::endpoints::routes::{
   post_crop_video,
   options_crop_image,
   options_crop_video,
+  post_upload_media,
 };
 use crate::web::catchers::{ default_catcher, unprocessable_entity };
 
@@ -41,7 +43,13 @@ fn rocket() -> _ {
     .mount("/docs", FileServer::new("./docs", Options::Index).rank(2))
     .mount(
       "/api",
-      routes![post_crop_image, post_crop_video, options_crop_image, options_crop_video]
+      routes![
+        post_crop_image,
+        post_crop_video,
+        options_crop_image,
+        options_crop_video,
+        post_upload_media
+      ]
     )
     .register("/api", catchers![default_catcher, unprocessable_entity])
 }

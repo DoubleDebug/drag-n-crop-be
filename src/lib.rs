@@ -42,6 +42,11 @@ pub struct CropRequest {
   pub dimensions: CropDimensions,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UploadRequest {
+  pub url: String,
+}
+
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
   pub success: bool,

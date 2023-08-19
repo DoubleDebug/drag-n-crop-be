@@ -1,27 +1,21 @@
-use std::path::Path;
-use drag_and_crop::{ CropRequest, crop_video };
-use drag_and_crop::{ crop_image, ApiResponse, CropParameters };
-use rocket::serde::json::{ json, Json, Value };
-use crate::web::firebase::{ download_file, get_access_token, upload_file };
-use crate::web::url::url::download_from_url;
-
 pub mod routes {
+  use drag_and_crop::{ CropRequest, UploadRequest };
+  use crate::web::handlers::handlers::{ handle_crop_request, handle_upload_request };
   use rocket::{
     serde::json::{ Json, Value },
     response::{ status, stream::{ Event, EventStream } },
     http::Status,
   };
-  use drag_and_crop::CropRequest;
 
   #[post("/crop-image", format = "json", data = "<options>")]
   pub async fn post_crop_image(options: Json<CropRequest>) -> Value {
-    super::handle_crop_request(options, true).await
+    handle_crop_request(options, true).await
   }
   #[post("/crop-video", format = "json", data = "<options>")]
   pub async fn post_crop_video(options: Json<CropRequest>) -> EventStream![] {
     EventStream! {
       yield Event::data("Processing...");
-      let result = super::handle_crop_request(options, false).await;
+      let result = handle_crop_request(options, false).await;
       yield Event::data(result.to_string());
     }
   }
@@ -33,88 +27,8 @@ pub mod routes {
   pub fn options_crop_video() -> status::Custom<String> {
     status::Custom(Status::NoContent, String::new())
   }
-}
-
-async fn handle_crop_request(options: Json<CropRequest>, is_image: bool) -> Value {
-  let media_type = if is_image { "image" } else { "video" };
-  // 1) get access token
-  let token_result = get_access_token().await;
-  if token_result.is_err() {
-    return json!(ApiResponse::<String> {
-      success: false,
-      message: Some(String::from("Failed to authenticate the request.")),
-      data: None,
-    });
+  #[post("/upload-media", format = "json", data = "<options>")]
+  pub async fn post_upload_media(options: Json<UploadRequest>) -> Value {
+    handle_upload_request(options).await
   }
-  let token = token_result.as_ref().unwrap().as_str();
-
-  // 2) download file from URL or firebase storage
-  let mut file_name = String::new();
-  if let Some(storage_path) = &options.storage_file_path {
-    let download_result = download_file(token, &storage_path).await;
-    if download_result.is_err() {
-      return json!(ApiResponse::<String> {
-        success: false,
-        message: Some(format!("There was an error with the {} url.", media_type)),
-        data: None,
-      });
-    }
-    file_name = download_result.unwrap();
-  } else if let Some(url) = &options.url {
-    let download_result = download_from_url(url).await;
-    if download_result.is_none() {
-      return json!(ApiResponse::<String> {
-        success: false,
-        message: Some(format!("There was an error with the {} url.", media_type)),
-        data: None,
-      });
-    }
-    file_name = download_result.unwrap();
-  }
-
-  if file_name == "" {
-    return json!(ApiResponse::<String> {
-      success: false,
-      message: Some(format!("Bad request - both storage file path and URL fields are empty.")),
-      data: None,
-    });
-  }
-
-  // 3) prepare cropping parameteres
-  let only_file_name = Path::new(&file_name).file_name().unwrap().to_str().unwrap();
-  let cropped_file_name = format!("./tmp/cropped-{}", only_file_name);
-  let options = CropParameters {
-    input_file_path: file_name,
-    output_file_path: Some(cropped_file_name),
-    dimensions: options.into_inner().dimensions,
-  };
-
-  // 4) crop image/video
-  let result = if is_image { crop_image(&options) } else { crop_video(&options) };
-  if let Err(crop_error) = result {
-    return json!(ApiResponse::<String> {
-      success: false,
-      message: Some(crop_error),
-      data: None,
-    });
-  }
-  let cropped_file_path = result.unwrap();
-
-  // 5) upload result to Firebase storage
-  let upload_result = upload_file(token, cropped_file_path.as_str(), is_image).await;
-  if upload_result.is_err() {
-    return json!(ApiResponse::<String> {
-      success: false,
-      message: Some(format!("There was an error while getting the cropped {} URL.", media_type)),
-      data: None,
-    });
-  }
-  let cropped_file_url = upload_result.unwrap();
-
-  // 6) return result
-  json!(ApiResponse {
-    success: true,
-    message: None,
-    data: Some(cropped_file_url),
-  })
 }

@@ -37,18 +37,22 @@ pub mod file {
   }
 
   /// Formats file name for Firebase storage.
-  /// Gets file name from relative path and removes the "cropped-" prefix.
+  /// Gets file name from relative path and optionally removes the "cropped-" prefix.
   ///
   /// ## Usage:
   /// ```
   /// use drag_and_crop::utils::file::file::format_file_name_for_storage;
   ///
-  /// let file_name = "./tmp/cropped-image-1.jpg";
-  /// let formatted = format_file_name_for_storage(file_name);
-  /// assert_eq!(formatted, "image-1.jpg");
+  /// let file_name1 = "./tmp/cropped-image-1.jpg";
+  /// let formatted1 = format_file_name_for_storage(file_name1, true);
+  /// assert_eq!(formatted1, "image-1.jpg");
+  ///
+  /// let file_name2 = "./tmp/my-video-2.jpg";
+  /// let formatted2 = format_file_name_for_storage(file_name2, false);
+  /// assert_eq!(formatted2, "my-video-2.jpg");
   /// ```
-  pub fn format_file_name_for_storage(file_name: &str) -> String {
-    let prefix_length = "cropped-".len();
+  pub fn format_file_name_for_storage(file_name: &str, has_prefix: bool) -> String {
+    let prefix_length = if has_prefix { "cropped-".len() } else { 0 };
     Path::new(file_name)
       .file_name()
       .unwrap()

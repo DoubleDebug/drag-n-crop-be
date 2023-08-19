@@ -112,7 +112,7 @@ pub mod url {
 
   /// Downloads file from URL.
   /// Returns `None` if the downloaded content isn't an image or a video.
-  /// Otherwise, it writes the content to a file and returns the file name.
+  /// Otherwise, it writes the content to a file and returns the file path.
   pub async fn download_from_url(url: &str) -> Option<String> {
     let result = reqwest::get(url).await;
     if result.is_err() {

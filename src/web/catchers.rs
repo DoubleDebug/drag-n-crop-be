@@ -5,7 +5,7 @@ use rocket::serde::json::{ json, Value };
 pub fn unprocessable_entity() -> Value {
   json!(ApiResponse::<String> {
     success: false,
-    message: Some(String::from("There was a type mismatch with the request data.")),
+    message: Some(String::from("Bad request: there was a type mismatch with the request data.")),
     data: None,
   })
 }
@@ -14,7 +14,9 @@ pub fn unprocessable_entity() -> Value {
 pub fn default_catcher() -> Value {
   json!(ApiResponse::<String> {
     success: false,
-    message: Some(String::from("There was an unknown error while processing the request.")),
+    message: Some(
+      String::from("Bad request: there was an unknown error while processing the request.")
+    ),
     data: None,
   })
 }

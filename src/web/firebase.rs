@@ -67,7 +67,8 @@ pub async fn download_file(
 pub async fn upload_file(
   access_token: &str,
   file_path: &str,
-  is_image: bool
+  is_image: bool,
+  is_raw_file: bool
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
   let client = reqwest::Client::builder().build()?;
 
@@ -81,9 +82,10 @@ pub async fn upload_file(
   let bytes = std::fs::read(file_path)?;
 
   // query parameters
-  let file_name = format_file_name_for_storage(&file_path);
+  let file_name = format_file_name_for_storage(&file_path, !is_raw_file);
   let folder_name = if is_image { "images" } else { "videos" };
-  let storage_file_name = format!("cropped/{}/{}", &folder_name, &file_name);
+  let storage_directory = if is_raw_file { "raw" } else { "cropped" };
+  let storage_file_name = format!("{}/{}/{}", storage_directory, &folder_name, &file_name);
   let query: [(&str, &str); 2] = [
     ("uploadType", "media"),
     ("name", &storage_file_name),
