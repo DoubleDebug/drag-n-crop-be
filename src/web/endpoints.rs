@@ -19,6 +19,10 @@ pub mod routes {
       yield Event::data(result.to_string());
     }
   }
+  #[post("/upload-media", format = "json", data = "<options>")]
+  pub async fn post_upload_media(options: Json<UploadRequest>) -> Value {
+    handle_upload_request(options).await
+  }
   #[options("/crop-image")]
   pub fn options_crop_image() -> status::Custom<String> {
     status::Custom(Status::NoContent, String::new())
@@ -27,8 +31,8 @@ pub mod routes {
   pub fn options_crop_video() -> status::Custom<String> {
     status::Custom(Status::NoContent, String::new())
   }
-  #[post("/upload-media", format = "json", data = "<options>")]
-  pub async fn post_upload_media(options: Json<UploadRequest>) -> Value {
-    handle_upload_request(options).await
+  #[options("/upload-media")]
+  pub fn options_upload_media() -> status::Custom<String> {
+    status::Custom(Status::NoContent, String::new())
   }
 }

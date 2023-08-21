@@ -13,8 +13,8 @@ pub mod validation {
   /// use drag_and_crop::{CropParameters, CropDimensions, ImageSize, Point};
   ///
   /// let mut params = CropParameters {
-  ///   input_file_path: String::from("./media/bird.jpg"),
-  ///   output_file_path: Some(String::from("./media/bird-cropped.jpg")),
+  ///   input_file_path: String::from("./static/media/bird.jpg"),
+  ///   output_file_path: Some(String::from("./static/media/bird-cropped.jpg")),
   ///   dimensions: CropDimensions {
   ///     size: ImageSize { width: 100, height: 100 },
   ///     top_left_point: Point { x: 50, y: 50 },
@@ -28,7 +28,7 @@ pub mod validation {
   /// result = validate_options(&params);
   /// assert_eq!(result, Err(String::from("The input file does not exist.")));
   ///
-  /// params.input_file_path = String::from("./media/bird.jpg");
+  /// params.input_file_path = String::from("./static/media/bird.jpg");
   /// params.dimensions.top_left_point.x = 2000;
   /// result = validate_options(&params);
   /// assert_eq!(result, Err(String::from("The top left point is out of bounds.")));
